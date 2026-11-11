@@ -12,7 +12,6 @@ export interface Screen {
 }
 
 export const WORLD_NAMES = ['Le Nez', 'La Gorge', 'Le Sang'];
-const FUTURE = ['Les Poumons', 'Le Ventre', 'Les Ganglions', 'La Moelle', 'Le Cœur', 'Le Cerveau'];
 
 function button(icon: keyof typeof ICON, cls: string, onclick: () => void, label?: string) {
   return h('button', { class: `btn ${cls}`, onclick: () => { sfx.tap(); onclick(); }, 'aria-label': label ?? icon }, svg(ICON[icon]), label && !cls.includes('round') ? h('span', null, label) : null);
@@ -93,14 +92,6 @@ const ZONES = [
   { world: 2, x: 50, y: 25, name: WORLD_NAMES[1] },
   { world: 3, x: 38, y: 47, name: WORLD_NAMES[2] },
 ];
-const FUTURE_ZONES = [
-  { x: 62, y: 40 },
-  { x: 50, y: 62 },
-  { x: 58, y: 54 },
-  { x: 42, y: 84 },
-  { x: 52, y: 44 },
-  { x: 62, y: 8 },
-];
 
 function bodySvg(): string {
   // a friendly rounded character silhouette
@@ -144,9 +135,6 @@ export function mapScreen(): Screen {
       ),
     );
   }
-  FUTURE_ZONES.forEach((z, i) =>
-    figure.append(h('div', { class: 'zone future', style: `left:${z.x}%;top:${z.y}%`, title: FUTURE[i] }, h('span', { class: 'zone-dot' }, svg(ICON.lock)))),
-  );
   const el = h(
     'div',
     { class: 'screen map' },

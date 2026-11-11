@@ -156,6 +156,8 @@ class PlayController {
     this.game.events.once('board-ready', () => {
       scene.setSim(this.sim);
       this.syncScene();
+      // very first level: show where a robot can go
+      if (level.id === '1-1' && this.setup.bots.length === 0) scene.pointAt(6, 3);
     });
   }
 

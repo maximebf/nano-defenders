@@ -2,6 +2,7 @@ import './style.css';
 import { loadSave, save } from './save';
 import { titleScreen, namingScreen, mapScreen, levelsScreen, briefingScreen, settingsScreen, type Screen } from './ui/screens';
 import { playScreen } from './ui/play';
+import { unlockAudio } from './audio/audio';
 
 type Route = 'title' | 'naming' | 'map' | 'levels' | 'briefing' | 'play' | 'settings' | 'back';
 type Params = Record<string, unknown>;
@@ -47,6 +48,9 @@ async function boot() {
   if (lvl) go('play', { id: lvl });
   else go('title');
 }
+
+// iPad suspends audio when the app goes to the background: any tap wakes it up again.
+document.addEventListener('pointerdown', () => unlockAudio(), { passive: true });
 
 // Prevent iOS double-tap zoom and long-press menus inside the game.
 document.addEventListener('dblclick', (e) => e.preventDefault(), { passive: false });

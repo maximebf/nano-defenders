@@ -178,8 +178,19 @@ export class Sim {
     this.blocksUsed = setup.programs.reduce((n, p) => n + countBlocks(p.blocks), 0);
     this.feverLeft = level.fever;
 
+    // wave groups starting within a few seconds of each other count as one wave for the child
     const ats = [...new Set(level.waves.map((w) => w.at))].sort((a, b) => a - b);
-    this.waveCount = ats.length;
+    const waveOf = new Map<number, number>();
+    let n = 0;
+    let groupStart = -Infinity;
+    for (const at of ats) {
+      if (at - groupStart >= 6) {
+        n++;
+        groupStart = at;
+      }
+      waveOf.set(at, n);
+    }
+    this.waveCount = n;
     this.spawns = [];
     for (const w of level.waves) {
       for (let i = 0; i < w.count; i++) {
@@ -187,7 +198,7 @@ export class Sim {
           tick: Math.round((w.at + i * w.every) * TICKS_PER_SECOND),
           kind: w.virus,
           path: w.path ?? 0,
-          wave: ats.indexOf(w.at) + 1,
+          wave: waveOf.get(w.at)!,
         });
       }
     }
