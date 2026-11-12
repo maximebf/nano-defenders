@@ -2,7 +2,7 @@
 
 A French game for a 7-year-old: program nanobots to help the immune system stop virus invasions.
 It starts as a tower defense and turns, world by world, into a visual programming game.
-See [PLAN.md](PLAN.md) for the full design. This is the MVP: Worlds 1–3 (18 levels).
+See [SPEC.md](SPEC.md) for the full design. This is the MVP: Worlds 1–3 (18 levels).
 
 | World | Concept | What the child does |
 | --- | --- | --- |
@@ -19,7 +19,9 @@ npm test           # rules engine + "every level can be won with 3 stars" checks
 npm run build      # static site in dist/, works offline once installed
 ```
 
-On the iPad: open the address in Safari, then **Share → Add to Home Screen**. The game then opens full screen like an app and works offline.
+On the iPad: open the address in Safari, then **Share → Add to Home Screen**. The game then opens full screen like an app and works offline. On first launch it shows a progress bar while it downloads the whole game (about 7 MB) to the device; after that it starts without internet. Updates only download the files that changed.
+
+Note: an app on the Home Screen has its own storage, separate from Safari's, so the download also happens on its first launch from the Home Screen. That launch needs internet.
 On a computer, "Jouer" switches the browser to full screen.
 
 Developer shortcut: `?level=3-2` opens a level directly. Parents can unlock every level in **Réglages → Espace parents**.

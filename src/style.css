@@ -253,8 +253,9 @@ button {
   flex: 1;
 }
 .bubble {
+  --bubble-bg: #fff;
   position: relative;
-  background: #fff;
+  background: var(--bubble-bg);
   border: 4px solid var(--ink);
   border-radius: 24px;
   padding: 14px 18px;
@@ -266,13 +267,27 @@ button {
 .mentor.big .bubble {
   font-size: clamp(20px, 2.8vw, 32px);
 }
-.bubble::before {
+/* tail: ink triangle outside the 4px border, bubble-coloured triangle on top covering the border */
+.bubble::before,
+.bubble::after {
   content: '';
   position: absolute;
-  left: -18px;
-  bottom: 18px;
-  border: 14px solid transparent;
-  border-right: 16px solid var(--ink);
+  width: 0;
+  height: 0;
+  border-style: solid;
+  border-color: transparent;
+}
+.bubble::before {
+  left: -22px; /* 4px border + 18px tail */
+  bottom: 14px;
+  border-width: 12px 18px 12px 0;
+  border-right-color: var(--ink);
+}
+.bubble::after {
+  left: -15px;
+  bottom: 17px;
+  border-width: 9px 15px 9px 0;
+  border-right-color: var(--bubble-bg);
 }
 .bubble.pop {
   animation: pop 0.25s ease-out;
@@ -914,9 +929,9 @@ body.left-handed .panel {
   width: 64px;
 }
 .hint .bubble {
+  --bubble-bg: #fffbe0;
   font-size: 18px;
   padding: 10px 14px;
-  background: #fffbe0;
 }
 .hint .close {
   position: absolute;
@@ -1449,4 +1464,60 @@ body.left-handed .panel {
 @keyframes turn {
   0%, 30% { transform: rotate(0); }
   60%, 100% { transform: rotate(-90deg); }
+}
+
+/* ------------------------------------------------ loading (offline download) */
+
+.loading {
+  gap: 2.5vh;
+  text-align: center;
+}
+.loading-bot {
+  font-size: 18vh;
+  animation: bob 1.6s ease-in-out infinite;
+  z-index: 1;
+}
+.loading-msg {
+  margin: 0;
+  font-size: clamp(20px, 3vw, 32px);
+  font-weight: 700;
+  color: #fff;
+  text-shadow: 0 3px 0 var(--ink);
+  max-width: 80vw;
+}
+.loading-bar {
+  width: min(70vw, 560px);
+  height: 34px;
+  border: 4px solid var(--ink);
+  border-radius: 999px;
+  background: var(--cream);
+  overflow: hidden;
+  box-shadow: var(--shadow);
+}
+.loading-fill {
+  width: 0;
+  height: 100%;
+  background: repeating-linear-gradient(-45deg, var(--cyan) 0 16px, #7fdcf7 16px 32px);
+  background-size: 45px 45px;
+  border-radius: 999px;
+  transition: width 0.3s ease;
+  animation: loading-stripes 0.8s linear infinite;
+}
+@keyframes loading-stripes {
+  to { background-position: 45px 0; }
+}
+.loading-pct {
+  font-size: clamp(18px, 2.4vw, 26px);
+  font-weight: 700;
+  color: var(--ink);
+}
+.loading-hint {
+  margin: 0;
+  min-height: 1.2em;
+  color: var(--ink);
+  font-size: clamp(16px, 2vw, 22px);
+}
+.loading-actions {
+  display: flex;
+  gap: 16px;
 }

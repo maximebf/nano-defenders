@@ -14,8 +14,17 @@ export function audioCtx(): AudioContext | null {
   return ctx;
 }
 
-/** Call from a user gesture. */
+/** Call from a user gesture (touchend/click: iOS ignores pointerdown/touchstart). */
 export function unlockAudio(): void {
+  // iOS mutes Web Audio when the silent switch is on, unless the session is 'playback'
+  const nav = navigator as Navigator & { audioSession?: { type: string } };
+  if (nav.audioSession && nav.audioSession.type !== 'playback') {
+    try {
+      nav.audioSession.type = 'playback';
+    } catch {
+      /* not supported */
+    }
+  }
   if (!ctx) {
     const AC = window.AudioContext ?? (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
     if (!AC) return;
@@ -32,8 +41,14 @@ export function unlockAudio(): void {
     voiceBus = ctx.createGain();
     voiceBus.gain.value = 1;
     voiceBus.connect(master);
+    // older iOS only unlocks after something is actually played inside the gesture
+    const silent = ctx.createBufferSource();
+    silent.buffer = ctx.createBuffer(1, 1, 22050);
+    silent.connect(ctx.destination);
+    silent.start(0);
   }
-  if (ctx.state === 'suspended') void ctx.resume();
+  // iOS uses 'interrupted' after a call / switching apps
+  if (ctx.state !== 'running') void ctx.resume().catch(() => {});
 }
 
 /* ---------------- sound effects (synthesised) ---------------- */

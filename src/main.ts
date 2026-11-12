@@ -3,6 +3,7 @@ import { loadSave, save } from './save';
 import { titleScreen, namingScreen, mapScreen, levelsScreen, briefingScreen, settingsScreen, type Screen } from './ui/screens';
 import { playScreen } from './ui/play';
 import { unlockAudio } from './audio/audio';
+import { loadingScreen } from './ui/loading';
 
 type Route = 'title' | 'naming' | 'map' | 'levels' | 'briefing' | 'play' | 'settings' | 'back';
 type Params = Record<string, unknown>;
@@ -42,6 +43,7 @@ export function applySettings(): void {
 
 async function boot() {
   await loadSave();
+  if (import.meta.env.PROD) await loadingScreen(app);
   // A quick way to open a level while developing: ?level=3-2
   const params = new URLSearchParams(location.search);
   const lvl = params.get('level');
@@ -50,7 +52,9 @@ async function boot() {
 }
 
 // iPad suspends audio when the app goes to the background: any tap wakes it up again.
-document.addEventListener('pointerdown', () => unlockAudio(), { passive: true });
+for (const ev of ['pointerdown', 'touchend', 'click', 'keydown']) {
+  document.addEventListener(ev, () => unlockAudio(), { passive: true, capture: true });
+}
 
 // Prevent iOS double-tap zoom and long-press menus inside the game.
 document.addEventListener('dblclick', (e) => e.preventDefault(), { passive: false });
@@ -58,7 +62,7 @@ document.addEventListener('contextmenu', (e) => e.preventDefault());
 document.addEventListener('gesturestart', (e) => e.preventDefault());
 
 if ('serviceWorker' in navigator && import.meta.env.PROD) {
-  window.addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => undefined));
+  navigator.serviceWorker.register('sw.js').catch(() => undefined);
 }
 
 void boot();

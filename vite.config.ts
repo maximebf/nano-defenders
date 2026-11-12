@@ -3,27 +3,36 @@ import { createHash } from 'node:crypto';
 import { readdirSync, readFileSync, statSync, writeFileSync } from 'node:fs';
 import { join, relative } from 'node:path';
 
-/** Writes dist/sw.js with the list of every built file, so the game works offline once installed. */
-function serviceWorker(): Plugin {
+/**
+ * Writes dist/precache.json (every built file with its hash and size) and dist/sw.js.
+ * The loading screen downloads that list into Cache Storage so the game plays offline;
+ * on updates only the files whose hash changed are downloaded again.
+ */
+function offlineManifest(): Plugin {
   return {
-    name: 'nano-sw',
+    name: 'nano-offline',
     apply: 'build',
     closeBundle() {
       const dist = join(__dirname, 'dist');
-      const files: string[] = [];
+      const skip = new Set(['sw.js', 'precache.json']);
+      const files: { url: string; hash: string; size: number }[] = [];
       const walk = (dir: string) => {
         for (const f of readdirSync(dir)) {
           const p = join(dir, f);
           if (statSync(p).isDirectory()) walk(p);
-          else if (f !== 'sw.js') files.push(relative(dist, p).split('\\').join('/'));
+          else if (!skip.has(f)) {
+            const url = relative(dist, p).split('\\').join('/');
+            const data = readFileSync(p);
+            // the page itself is cached under './' (that is what a launch from the home screen asks for)
+            files.push({ url: url === 'index.html' ? './' : url, hash: createHash('sha1').update(data).digest('hex').slice(0, 12), size: data.length });
+          }
         }
       };
       walk(dist);
-      const hash = createHash('sha1');
-      for (const f of files.sort()) hash.update(f).update(readFileSync(join(dist, f)));
-      const version = hash.digest('hex').slice(0, 10);
-      const template = readFileSync(join(__dirname, 'src/sw-template.js'), 'utf8');
-      writeFileSync(join(dist, 'sw.js'), template.replace('__VERSION__', version).replace('__FILES__', JSON.stringify(['./', ...files])));
+      files.sort((a, b) => a.url.localeCompare(b.url));
+      const version = createHash('sha1').update(JSON.stringify(files)).digest('hex').slice(0, 10);
+      writeFileSync(join(dist, 'precache.json'), JSON.stringify({ version, files }));
+      writeFileSync(join(dist, 'sw.js'), readFileSync(join(__dirname, 'src/sw-template.js'), 'utf8'));
     },
   };
 }
@@ -31,6 +40,6 @@ function serviceWorker(): Plugin {
 export default defineConfig({
   base: './',
   build: { chunkSizeWarningLimit: 2000 },
-  plugins: [serviceWorker()],
+  plugins: [offlineManifest()],
   test: { include: ['tests/**/*.test.ts'] },
 } as any);
