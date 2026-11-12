@@ -1,0 +1,89 @@
+<!doctype html>
+<!-- Collection thumbnail (1600x1200, 4:3). Render with:
+     google-chrome --headless=new --allow-file-access-from-files --hide-scrollbars --virtual-time-budget=3000 \
+       --window-size=1600,1200 --screenshot=public/poster.png "file://$PWD/scripts/poster.html" -->
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<style>
+  @font-face {
+    font-family: 'Fredoka';
+    src: url('../public/fonts/fredoka-latin.woff2') format('woff2');
+    font-weight: 300 700;
+  }
+  :root { --ink: #1d3557; --cyan: #4cc9f0; }
+  html, body { margin: 0; width: 1600px; height: 1200px; overflow: hidden; }
+  body {
+    position: relative;
+    font-family: 'Fredoka', sans-serif;
+    background: radial-gradient(circle at 32% 22%, #ffc4d3 0%, #f08aa5 42%, #b84873 100%);
+  }
+  img { position: absolute; display: block; }
+  .s { filter: drop-shadow(0 10px 0 rgba(29, 53, 87, 0.22)); }
+
+  /* background: soft vessel walls and drifting cells */
+  .glow { position: absolute; border-radius: 50%; filter: blur(40px); }
+  .bgcell { opacity: 0.35; filter: blur(3px); }
+
+  .logo {
+    position: absolute; left: 0; right: 0; top: 70px;
+    margin: 0; text-align: center;
+    font-weight: 700; line-height: 0.86; color: #fff;
+    -webkit-text-stroke: 7px var(--ink); paint-order: stroke fill;
+    text-shadow: 0 12px 0 var(--ink), 0 0 60px rgba(76, 201, 240, 0.7);
+    transform: rotate(-3deg);
+    z-index: 5;
+  }
+  .logo .a { font-size: 190px; display: block; }
+  .logo .b { font-size: 240px; display: block; color: var(--cyan); letter-spacing: -2px; }
+
+  svg.fx { position: absolute; inset: 0; z-index: 6; }
+</style>
+</head>
+<body>
+  <div class="glow" style="left:-120px;top:780px;width:700px;height:520px;background:#ffd6e0;opacity:.55"></div>
+  <div class="glow" style="left:1050px;top:-160px;width:700px;height:520px;background:#ffd6e0;opacity:.4"></div>
+  <div class="glow" style="left:980px;top:700px;width:760px;height:600px;background:#7b2cbf;opacity:.28"></div>
+
+  <img class="bgcell" src="../public/assets/img/cell.png" style="left:40px;top:40px;width:170px;transform:rotate(-14deg)">
+  <img class="bgcell" src="../public/assets/img/cell.png" style="left:1390px;top:40px;width:150px;transform:rotate(18deg)">
+  <img class="bgcell" src="../public/assets/img/cell.png" style="left:640px;top:1040px;width:140px;transform:rotate(8deg)">
+  <img class="bgcell" src="../public/assets/img/cell.png" style="left:1480px;top:560px;width:120px;transform:rotate(-20deg)">
+
+  <!-- zaps and sparkles -->
+  <svg class="fx" viewBox="0 0 1600 1200">
+    <defs>
+      <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+        <feGaussianBlur stdDeviation="10" result="b"/>
+        <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+      </filter>
+    </defs>
+    <g filter="url(#glow)" stroke-linejoin="round" stroke-linecap="round" fill="none">
+      <!-- Zappy -> Big Snifflet -->
+      <polyline points="600,790 700,760 750,815 860,770 900,830 1000,785 1040,835 1110,815" stroke="#1d3557" stroke-width="22"/>
+      <polyline points="600,790 700,760 750,815 860,770 900,830 1000,785 1040,835 1110,815" stroke="#4cc9f0" stroke-width="13"/>
+      <polyline points="600,790 700,760 750,815 860,770 900,830 1000,785 1040,835 1110,815" stroke="#fff" stroke-width="4"/>
+    </g>
+    <g fill="#fff" stroke="#1d3557" stroke-width="5" stroke-linejoin="round">
+      <path d="M1112 770 l16 34 36 6 -30 18 8 36 -30-22 -30 22 8-36 -30-18 36-6z" fill="#ffd166"/>
+      <path d="M560 560 l8 18 19 3 -15 10 4 19 -16-12 -16 12 4-19 -15-10 19-3z" fill="#fff"/>
+      <path d="M960 520 l8 18 19 3 -15 10 4 19 -16-12 -16 12 4-19 -15-10 19-3z" fill="#fff"/>
+      <path d="M80 400 l6 13 14 2 -11 8 3 14 -12-9 -12 9 3-14 -11-8 14-2z" fill="#ffd166"/>
+    </g>
+  </svg>
+
+  <!-- the invaders, coming from the right -->
+  <img class="s" src="../public/assets/img/zoomer.png"      style="left:1300px;top:400px;width:260px;z-index:2;transform:rotate(-8deg)">
+  <img class="s" src="../public/assets/img/bigSnifflet.png" style="left:1030px;top:570px;width:480px;z-index:4">
+  <img class="s" src="../public/assets/img/shellby.png"     style="left:1320px;top:900px;width:290px;z-index:4;transform:rotate(6deg)">
+  <img class="s" src="../public/assets/img/snifflet.png"    style="left:870px;top:950px;width:230px;z-index:4;transform:rotate(-6deg)">
+
+  <!-- the defenders -->
+  <img class="s" src="../public/assets/img/pixel.png"  style="left:0px;top:470px;width:530px;z-index:4">
+  <img class="s" src="../public/assets/img/zappy.png"  style="left:470px;top:760px;width:250px;z-index:5">
+  <img class="s" src="../public/assets/img/scout.png"  style="left:620px;top:960px;width:220px;z-index:5;transform:rotate(-4deg)">
+  <img class="s" src="../public/assets/img/netter.png" style="left:150px;top:930px;width:270px;z-index:5;transform:scaleX(-1)">
+
+  <h1 class="logo"><span class="a">Nano</span><span class="b">Défenseurs</span></h1>
+</body>
+</html>
