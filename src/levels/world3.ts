@@ -3,7 +3,9 @@ import type { BlockOp, LevelDef } from '../sim/types';
 // World 3 — Bloodstream. Sequence: order matters. The Scout runs a program, Shellbys need a net then a zap.
 
 const MOVE_BLOCKS: BlockOp[] = ['move', 'turnLeft', 'turnRight', 'zap'];
-const ALL_BLOCKS: BlockOp[] = ['move', 'turnLeft', 'turnRight', 'wait', 'net', 'zap'];
+// 'wait' is left out on purpose: zap already waits for a virus and nets never expire, so it had no use here.
+// It stays in the engine for later worlds (loops, timed puzzles).
+const ALL_BLOCKS: BlockOp[] = ['move', 'turnLeft', 'turnRight', 'net', 'zap'];
 
 export const world3: LevelDef[] = [
   {

@@ -88,7 +88,8 @@ The game stays visual to the end: there is no text-code mode.
 | Family | Blocks | Unlocked in |
 | --- | --- | --- |
 | Behaviour cards | target nearest, target strongest, heal cells | World 2 |
-| Movement | move forward (n), turn left, turn right, wait | World 3 |
+| Movement | move forward (n), turn left, turn right | World 3 |
+| Timing | wait (n) | Later, once loops or timed puzzles give it a use |
 | Actions | zap, throw net, shield, heal, spray antibodies, recharge | World 3 onward, one per world |
 | Loops | repeat (n), forever, repeat until | World 4 |
 | Events | when wave starts, when virus nearby, when hit, when energy low | World 5 |
