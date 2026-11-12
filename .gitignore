@@ -6,3 +6,4 @@ dist/
 assets-src/raw/
 test-results/
 playwright-report/
+.cloudflare/

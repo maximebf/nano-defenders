@@ -14,7 +14,8 @@ function offlineManifest(): Plugin {
     apply: 'build',
     closeBundle() {
       const dist = join(__dirname, 'dist');
-      const skip = new Set(['sw.js', 'precache.json']);
+      // _headers is read by Cloudflare at deploy time and never served
+      const skip = new Set(['sw.js', 'precache.json', '_headers']);
       const files: { url: string; hash: string; size: number }[] = [];
       const walk = (dir: string) => {
         for (const f of readdirSync(dir)) {
