@@ -73,7 +73,7 @@ describe('every level can be won with 3 stars', () => {
 
   const programs: Record<string, Program> = {
     '3-1': P(left, move(2), zap, zap),
-    '3-2': P(net, zap, net, zap),
+    '3-2': P(move(1), net, zap, net, zap),
     '3-3': P(move(3), right, move(2), net, zap, net, zap),
     '3-5': P(move(1), net, zap, right, right, move(3), net, zap),
     '3-6': P(move(1), net, zap, net, zap, net, zap),
@@ -104,8 +104,12 @@ describe('the lessons hold', () => {
     expect(run(levelById('3-1')!, { bots: [], programs: [P()] }).won).toBe(false);
   });
   it('3-2: zap before net does not save every cell', () => {
-    const r = run(levelById('3-2')!, { bots: [], programs: [P(zap, net, zap, net)] });
+    const r = run(levelById('3-2')!, { bots: [], programs: [P(move(1), zap, net, zap, net)] });
     expect(r.stars[1]).toBe(false);
+  });
+  it('3-2: the scout has to move first', () => {
+    const r = run(levelById('3-2')!, { bots: [], programs: [P(net, zap, net, zap)] });
+    expect(r.won).toBe(false);
   });
   it('3-3: stopping one tile short loses', () => {
     const r = run(levelById('3-3')!, { bots: [], programs: [P(move(3), right, move(1), net, zap, net, zap)] });
