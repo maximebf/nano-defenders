@@ -48,8 +48,22 @@ export function unlockAudio(): void {
     silent.start(0);
   }
   // iOS uses 'interrupted' after a call / switching apps
-  if (ctx.state !== 'running') void ctx.resume().catch(() => {});
+  if (ctx.state !== 'running' && !document.hidden) void ctx.resume().catch(() => {});
 }
+
+// With the 'playback' audio session, iOS keeps the context running when the
+// app goes to the background: suspend it ourselves, and resume on return.
+document.addEventListener('visibilitychange', () => {
+  if (!ctx) return;
+  // suspending also freezes a voice line mid-sentence; it continues on return
+  if (document.hidden) {
+    window.speechSynthesis?.pause();
+    void ctx.suspend().catch(() => {});
+  } else {
+    window.speechSynthesis?.resume();
+    void ctx.resume().catch(() => {});
+  }
+});
 
 /* ---------------- sound effects (synthesised) ---------------- */
 
