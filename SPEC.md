@@ -78,7 +78,7 @@ Each world teaches one programming concept, adds one new virus that *needs* that
 
 The editor grows with the child in two modes, so a 7-year-old is never faced with nested text blocks on day one.
 
-1. **Icon mode (Worlds 2–5).** Big picture blocks snapped in a horizontal strip, like ScratchJr (built for ages 5–7). A number badge on a block replaces typing (“move × 3”). Loops wrap blocks visually.
+1. **Icon mode (Worlds 2–5).** Big picture blocks snapped in a horizontal strip, like ScratchJr (built for ages 5–7). One block is one step: to move three tiles, add three move blocks. Loops wrap blocks visually.
 2. **Block mode (Worlds 6+).** Vertical Scratch-style blocks with short French words, nesting, if/else and variables. Built on Google Blockly, which ships French block translations.
 
 The game stays visual to the end: there is no text-code mode.
@@ -212,7 +212,7 @@ The game is landscape-only, designed for a tablet first, and fills the screen on
 
 - Touch targets at least 48 px; blocks bigger than that.
 - Only tap and drag. No double-tap, no long-press, no precise gestures.
-- Pinch to zoom the map; dragging a block near the bin deletes it.
+- Pinch to zoom the map; dragging a block out of the strip deletes it.
 - Left-handed option mirrors the layout.
 
 **Screens**

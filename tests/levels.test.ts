@@ -6,8 +6,9 @@ import { Sim } from '../src/sim/sim';
 import type { Block, LevelDef, PlacedBot, Program } from '../src/sim/types';
 import { cardCombos, greedy, run, tapper } from './helpers';
 
-const P = (...blocks: Block[]): Program => ({ v: 1, blocks });
-const move = (n: number): Block => ({ op: 'move', n });
+const P = (...blocks: (Block | Block[])[]): Program => ({ v: 1, blocks: blocks.flat() });
+/** the editor has no counts: moving n tiles takes n move blocks */
+const move = (n: number): Block[] => Array.from({ length: n }, () => ({ op: 'move', n: 1 }));
 const net: Block = { op: 'net' };
 const zap: Block = { op: 'zap' };
 const left: Block = { op: 'turnLeft' };

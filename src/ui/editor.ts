@@ -6,7 +6,8 @@ import { say, sfx } from '../audio/audio';
 
 // Icon-mode program editor (ScratchJr style): big picture blocks in a strip.
 // Tap a palette block to add it, tap a block to select it, drag to reorder,
-// drag onto the bin to delete. Number badges replace typing.
+// drag it out of the strip to delete. One block = one step: to move three
+// tiles, add three move blocks.
 
 const COLORS: Record<BlockOp, string> = {
   move: 'b-move',
@@ -31,12 +32,18 @@ function makeBlock(op: BlockOp): Block {
   }
 }
 
+/** Programs saved before counts were removed may hold "move ×3": split them into single blocks. */
+function splitCounts(p: Program) {
+  p.blocks = p.blocks.flatMap((b): Block[] =>
+    (b.op === 'move' || b.op === 'wait') && b.n > 1 ? Array.from({ length: b.n }, () => ({ op: b.op, n: 1 }) as Block) : [b],
+  );
+}
+
 export class ProgramEditor {
   el: HTMLElement;
   private strip: HTMLElement;
   private palette: HTMLElement;
   private budgetEl: HTMLElement;
-  private bin: HTMLElement;
   private toolbar: HTMLElement;
   private selected: number | null = null;
   private running: number | null = null;
@@ -52,7 +59,6 @@ export class ProgramEditor {
     this.strip = h('div', { class: 'strip' });
     this.palette = h('div', { class: 'palette' });
     this.budgetEl = h('div', { class: 'budget' });
-    this.bin = h('div', { class: 'bin' }, svg(ICON.bin));
     this.toolbar = h('div', { class: 'block-tools' });
     this.el = h(
       'div',
@@ -60,7 +66,7 @@ export class ProgramEditor {
       h('div', { class: 'editor-head' }, h('span', { class: 'scout-tag' }, 'Programme de Scout'), this.budgetEl),
       h('div', { class: 'strip-wrap' }, h('div', { class: 'start-flag' }, svg(ICON.play)), this.strip),
       this.toolbar,
-      h('div', { class: 'palette-row' }, this.palette, this.bin),
+      h('div', { class: 'palette-row' }, this.palette),
     );
     for (const op of allowed) {
       const b = h('div', { class: `pblock ${COLORS[op]}`, 'data-op': op }, svg(ICON[op as keyof typeof ICON]));
@@ -70,6 +76,7 @@ export class ProgramEditor {
     window.addEventListener('pointermove', this.pointerMove);
     window.addEventListener('pointerup', this.pointerUp);
     window.addEventListener('pointercancel', this.pointerUp);
+    splitCounts(this.program);
     this.render();
   }
 
@@ -81,6 +88,7 @@ export class ProgramEditor {
 
   setProgram(p: Program) {
     this.program = p;
+    splitCounts(p);
     this.selected = null;
     this.render();
   }
@@ -105,7 +113,6 @@ export class ProgramEditor {
     const blocks = this.program.blocks;
     const items: HTMLElement[] = blocks.map((b, i) => {
         const el = h('div', { class: `sblock ${COLORS[b.op]} ${this.selected === i ? 'selected' : ''} ${this.running === i ? 'running' : ''}` }, svg(ICON[b.op as keyof typeof ICON]));
-        if ('n' in b) el.append(h('span', { class: 'count' }, `×${b.n}`));
         el.addEventListener('pointerdown', (e) => this.pointerDown(e, 'strip', undefined, i));
         return el;
     });
@@ -125,15 +132,12 @@ export class ProgramEditor {
       const i = this.selected!;
       const tb = (icon: string, fn: () => void, label: string, disabled = false) =>
         h('button', { class: 'tool', disabled, 'aria-label': label, onclick: () => { sfx.tap(); fn(); } }, icon.startsWith('<') ? svg(icon) : h('b', null, icon));
-      const tools: (HTMLElement | null)[] = [
+      const tools: HTMLElement[] = [
         tb(ICON.back, () => this.moveBlock(i, i - 1), 'avant', i === 0),
-        'n' in sel ? tb('−', () => this.setCount(i, sel.n - 1), 'moins', sel.n <= 1) : null,
-        'n' in sel ? h('span', { class: 'tool-count' }, `×${sel.n}`) : null,
-        'n' in sel ? tb('+', () => this.setCount(i, sel.n + 1), 'plus', sel.n >= 9) : null,
         tb(ICON.next, () => this.moveBlock(i, i + 1), 'après', i === blocks.length - 1),
         tb(ICON.bin, () => this.remove(i), 'enlever'),
       ];
-      this.toolbar.append(...tools.filter((t): t is HTMLElement => !!t));
+      this.toolbar.append(...tools);
     }
   }
 
@@ -171,13 +175,6 @@ export class ProgramEditor {
     this.changed();
   }
 
-  private setCount(i: number, n: number) {
-    const b = this.program.blocks[i];
-    if (!('n' in b)) return;
-    b.n = Math.max(1, Math.min(9, n));
-    this.changed();
-  }
-
   /* ---------- drag and drop (pointer events work for touch, pen and mouse) ---------- */
 
   private pointerDown(e: PointerEvent, from: 'palette' | 'strip', op?: BlockOp, index?: number) {
@@ -199,8 +196,9 @@ export class ProgramEditor {
     if (d.started && d.ghost) {
       d.ghost.style.left = `${e.clientX}px`;
       d.ghost.style.top = `${e.clientY}px`;
-      this.bin.classList.toggle('hot', this.over(this.bin, e));
-      this.showInsert(this.insertIndex(e));
+      const at = this.insertIndex(e);
+      this.showInsert(at);
+      if (d.from === 'strip') d.ghost.classList.toggle('removing', at === null);
     }
   };
 
@@ -209,7 +207,6 @@ export class ProgramEditor {
     if (!d || e.pointerId !== d.pointer) return;
     this.drag = null;
     d.ghost?.remove();
-    this.bin.classList.remove('hot');
     this.showInsert(null);
     if (!d.started) {
       // a simple tap
@@ -225,10 +222,11 @@ export class ProgramEditor {
       }
       return;
     }
-    if (d.from === 'strip' && this.over(this.bin, e)) return this.remove(d.index!);
     const at = this.insertIndex(e);
     if (at === null) {
-      this.render();
+      // a strip block dropped outside the strip is removed
+      if (d.from === 'strip') this.remove(d.index!);
+      else this.render();
       return;
     }
     if (d.from === 'palette') this.add(d.op!, at);

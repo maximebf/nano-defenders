@@ -435,6 +435,10 @@ button {
 .zone.future {
   pointer-events: none;
 }
+.sblock.ghost.removing {
+  opacity: 0.45;
+  transform: translate(-50%, -50%) scale(0.9) rotate(8deg);
+}
 @keyframes pulse {
   70% { box-shadow: 0 0 0 18px rgba(76, 201, 240, 0); }
   100% { box-shadow: 0 0 0 0 rgba(76, 201, 240, 0); }
@@ -1073,17 +1077,6 @@ body.left-handed .panel {
   transform: translate(-50%, -50%) scale(1.1) rotate(-4deg);
   pointer-events: none;
 }
-.count {
-  position: absolute;
-  right: -10px;
-  bottom: -10px;
-  background: #fff;
-  border: 3px solid var(--ink);
-  border-radius: 12px;
-  padding: 0 6px;
-  font-size: 18px;
-  font-weight: 700;
-}
 .block-tools {
   display: flex;
   align-items: center;
@@ -1111,12 +1104,6 @@ body.left-handed .panel {
 .tool:disabled {
   opacity: 0.3;
 }
-.tool-count {
-  font-size: 24px;
-  font-weight: 700;
-  min-width: 40px;
-  text-align: center;
-}
 .palette-row {
   display: flex;
   gap: 8px;
@@ -1134,22 +1121,6 @@ body.left-handed .panel {
 .palette.full .pblock {
   filter: grayscale(0.8);
   opacity: 0.6;
-}
-.bin {
-  flex: none;
-  width: 64px;
-  display: grid;
-  place-items: center;
-  border: 4px dashed #9a8c98;
-  border-radius: 18px;
-  color: #9a8c98;
-  font-size: 36px;
-}
-.bin.hot {
-  color: var(--red);
-  border-color: var(--red);
-  background: #ffe5e8;
-  transform: scale(1.1);
 }
 
 /* ------------------------------------------------ overlays */
