@@ -4,6 +4,7 @@ import { WORLDS, levelById } from '../levels';
 import { save, persist, starCount, isLevelUnlocked, isWorldUnlocked, isWorldDone, resetSave, exportSave, importSave } from '../save';
 import { say, sfx, stopVoice, text, unlockAudio, playMusic, preloadVoice } from '../audio/audio';
 import { go } from '../main';
+import { isStandalone } from '../offline';
 import type { LevelDef, StarRule } from '../sim/types';
 
 export interface Screen {
@@ -41,8 +42,7 @@ export function titleScreen(): Screen {
   const start = () => {
     unlockAudio();
     const el = document.documentElement;
-    const standalone = matchMedia('(display-mode: standalone)').matches || (navigator as unknown as { standalone?: boolean }).standalone;
-    if (!standalone && el.requestFullscreen && !/iPhone|iPad/.test(navigator.userAgent)) el.requestFullscreen().catch(() => undefined);
+    if (!isStandalone() && el.requestFullscreen && !/iPhone|iPad/.test(navigator.userAgent)) el.requestFullscreen().catch(() => undefined);
     playMusic(0, false);
     if (!save.seenIntro || !save.bodyName) go('naming');
     else go('map');

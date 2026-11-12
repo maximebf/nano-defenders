@@ -58,6 +58,17 @@ function writeState(cache: Cache, state: Record<string, string>): Promise<void> 
   return cache.put(STATE, new Response(JSON.stringify(state), { headers: { 'content-type': 'application/json' } }));
 }
 
+/** True when the game runs as an installed app (home screen / desktop app), not in a browser tab. */
+export function isStandalone(): boolean {
+  return matchMedia('(display-mode: standalone)').matches || !!(navigator as unknown as { standalone?: boolean }).standalone;
+}
+
+/** True when a copy of the game was already stored (by the installed app, which may share storage with the browser). */
+export async function hasOfflineCopy(): Promise<boolean> {
+  if (!('caches' in window)) return false;
+  return !!(await readState(await caches.open(CACHE)))[COMPLETE];
+}
+
 export async function planOffline(): Promise<Plan | null> {
   if (!('caches' in window)) return null;
   const cache = await caches.open(CACHE);

@@ -1,13 +1,22 @@
 import { h, svg } from './dom';
 import { ICON } from './icons';
-import { planOffline, type Plan } from '../offline';
+import { hasOfflineCopy, isStandalone, planOffline, type Plan } from '../offline';
 
 /**
- * Makes sure the whole game is stored on the device before it starts.
+ * In the installed app, makes sure the whole game is stored on the device before it starts.
+ * In a browser tab nothing is downloaded up front (the game loads normally), except to keep
+ * an already stored copy up to date, since the installed app may share it.
  * Shows nothing when everything is already there; otherwise a progress bar.
  * Resolves when the game can start.
  */
 export async function loadingScreen(app: HTMLElement): Promise<void> {
+  if (!isStandalone()) {
+    try {
+      if (!(await hasOfflineCopy())) return;
+    } catch {
+      return;
+    }
+  }
   // ask the browser not to clear our storage when space runs low
   void navigator.storage?.persist?.().catch(() => false);
 
